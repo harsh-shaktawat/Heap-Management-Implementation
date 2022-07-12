@@ -14,10 +14,7 @@ typedef struct node_tag{
     struct node_tag* prev;
     struct node_tag* next;
 }Node;
- 
-typedef struct heap_tag{
-    Node* head;
-}HeapMemory;
+Node* root;
 
 Node* create_Node(int start,int size){
     Node* temp=(Node*)malloc(sizeof(Node));
@@ -31,20 +28,20 @@ Node* create_Node(int start,int size){
     return temp;
 }
 
-void Assign_initial_memory(HeapMemory* ptr){
+void Assign_initial_memory(){
     Node* temp=(Node*)malloc(sizeof(Node));
     if(temp!=NULL){
         temp=create_Node(0,TOTAL_MEMORY);
         temp->isFree=TRUE;
-        ptr->head=temp;
+        root=temp;
     }
     else{
         printf("Failed to assign initial memory");
     }
 }
 
-void print_freeList(HeapMemory* ptr){
-    Node* temp=ptr->head;
+void print_freeList(){
+    Node* temp=root;
     bool spaceFree=FALSE;
     printf("\n");
     while(temp!=NULL){
@@ -59,8 +56,8 @@ void print_freeList(HeapMemory* ptr){
     }
 }
 
-void print_allocatedList(HeapMemory* ptr){
-    Node* temp=ptr->head;
+void print_allocatedList(){
+    Node* temp=root;
     bool spaceAllocated=FALSE;
     printf("\n");
     while(temp!=NULL){
@@ -75,12 +72,12 @@ void print_allocatedList(HeapMemory* ptr){
     }
 }
 
-void allocate(HeapMemory* ptr){
+void allocate(){
     
     int size;
     printf("\nenter the size of memory required for allocation\n");
     scanf("%d", &size);
-    Node* temp=ptr->head;
+    Node* temp=root;
     if(temp==NULL){
         printf("initial heap is empty\n");
         return;
@@ -117,25 +114,23 @@ void allocate(HeapMemory* ptr){
                     foundptr->prev->next=new_node;
                     new_node->prev=foundptr->prev;
                 }
+                else{
+                    root=new_node;
+                }
                 new_node->next=foundptr;
                 foundptr->prev=new_node;
                 new_node->isAllocated=TRUE;
             }
             
         }
-        
-        while(temp->prev!=NULL){
-                temp=temp->prev;
-            }
-        ptr->head=temp;
     }
 }
 
-void deallocate(HeapMemory* ptr){
+void deallocate(){
     int size,start_point;
     printf("\nEnter the size and starting address of block to deallocate\n");
     scanf("%d%d", &size, &start_point);
-    Node* temp=ptr->head;
+    Node* temp=root;
     if(temp==NULL){
         printf("Initial heap is empty\n");
     }
@@ -180,21 +175,16 @@ void deallocate(HeapMemory* ptr){
             }
             foundptr->isAllocated=FALSE;
             foundptr->isFree=TRUE;
-            temp=foundptr;
-            while(temp->prev!=NULL){
-                temp=temp->prev;
+            if(foundptr->prev==NULL){
+                root=foundptr;
             }
-            ptr->head=temp;
         }
        
     }
 }
 
 int main(){
-    HeapMemory heap;
-    HeapMemory *ptr=&heap;
-    
-    Assign_initial_memory(ptr);
+    Assign_initial_memory();
     
     char choice='y';
     while(choice=='y'){
@@ -204,16 +194,16 @@ int main(){
         printf("4 to print allocated list\n5 to stop\n");
         scanf("%d", &option);
         if(option==1){
-            allocate(ptr);
+            allocate();
         }
         else if(option==2){
-            deallocate(ptr);
+            deallocate();
         }
         else if(option==3){
-            print_freeList(ptr);
+            print_freeList();
         }
         else if(option==4){
-            print_allocatedList(ptr);
+            print_allocatedList();
         }
         else{
             printf("Process stopped\n");
